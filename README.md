@@ -1,113 +1,63 @@
-<!--
-title: 'AWS Simple HTTP Endpoint example in NodeJS'
-description: 'This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.'
-layout: Doc
-framework: v2
-platform: AWS
-language: nodeJS
-authorLink: 'https://github.com/serverless'
-authorName: 'Serverless, inc.'
-authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
--->
+# Home Page app API
 
-# Serverless Framework Node HTTP API on AWS
-
-This template demonstrates how to make a simple HTTP API with Node.js running on AWS Lambda and API Gateway using the Serverless Framework.
-
-This template does not include any kind of persistence (database). For more advanced examples, check out the [serverless/examples repository](https://github.com/serverless/examples/) which includes Typescript, Mongo, DynamoDB and other examples.
+This app is created using serverless architecture and Terrform to provide api end point to suppor the Home Page app UI.
 
 ## Usage
 
-### Deployment
+### Prerequisites
 
+Before starting you need to make sure that you have following:
+  - An AWS account IAM role with programatic access
+  - Terraform CLI
+  - Serverless CLi
+
+### Deploy
+
+To deploy the project configure the aws credentials by using this command
+
+```
+$ aws configure
+```
+
+Once you have configured the aws you need to run terraform commands to setup the architecture required for the project.
+
+```
+$ terraform init
+$ terraform plan
+$ terraform apply
+```
+
+Once you have created the architecture on AWS, copy the secrets.json.example file to secrets.json file and add the required keys in the file. After this you are ready to deploy the code and start using it. Use this command to deploy the code on the AWS infrastructure that you just created.
 ```
 $ serverless deploy
 ```
 
-After deploying, you should see output similar to:
+### API End Points
 
-```bash
-Serverless: Packaging service...
-Serverless: Excluding development dependencies...
-Serverless: Creating Stack...
-Serverless: Checking Stack create progress...
-........
-Serverless: Stack create finished...
-Serverless: Uploading CloudFormation file to S3...
-Serverless: Uploading artifacts...
-Serverless: Uploading service aws-node-http-api.zip file to S3 (711.23 KB)...
-Serverless: Validating template...
-Serverless: Updating Stack...
-Serverless: Checking Stack update progress...
-.................................
-Serverless: Stack update finished...
-Service Information
-service: serverless-http-api
-stage: dev
-region: us-east-1
-stack: serverless-http-api-dev
-resources: 12
-api keys:
-  None
-endpoints:
-  ANY - https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
-functions:
-  api: serverless-http-api-dev-hello
-layers:
-  None
-```
+This app provide these api end points:
 
-_Note_: In current form, after deployment, your API is public and can be invoked by anyone. For production deployments, you might want to configure an authorizer. For details on how to do that, refer to [http event docs](https://www.serverless.com/framework/docs/providers/aws/events/apigateway/).
+#### /sendVerificationCode
+##### METHOD:
+POST
 
-### Invocation
-
-After successful deployment, you can call the created application via HTTP:
-
-```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/
-```
-
-Which should result in response similar to the following (removed `input` content for brevity):
-
-```json
+##### PARAMS:
 {
-  "message": "Go Serverless v2.0! Your function executed successfully!",
-  "input": {
-    ...
-  }
+  email: "admin@example.com",
+  phone: "+13343434334"
 }
-```
 
-### Local development
+##### Description:
+This api end point accepts two params, an email and a phone number. If email address is passwed then it will send the generaed to code to email otherwise it will check if a phone number is passed and send the code on that number using twillio.
 
-You can invoke your function locally by using the following command:
+#### /verfiyCode
+##### METHOD:
+POST
 
-```bash
-serverless invoke local --function hello
-```
-
-Which should result in response similar to the following:
-
-```
+##### PARAMS:
 {
-  "statusCode": 200,
-  "body": "{\n  \"message\": \"Go Serverless v2.0! Your function executed successfully!\",\n  \"input\": \"\"\n}"
+  email: "admin@example.com",
+  phone: "+13343434334",
+  code: "343434"
 }
-```
-
-
-Alternatively, it is also possible to emulate API Gateway and Lambda locally by using `serverless-offline` plugin. In order to do that, execute the following command:
-
-```bash
-serverless plugin install -n serverless-offline
-```
-
-It will add the `serverless-offline` plugin to `devDependencies` in `package.json` file as well as will add it to `plugins` in `serverless.yml`.
-
-After installation, you can start local emulation with:
-
-```
-serverless offline
-```
-
-To learn more about the capabilities of `serverless-offline`, please refer to its [GitHub repository](https://github.com/dherault/serverless-offline).
+##### Description:
+This end point will verify if the provided code matches the email or phone number in the databse.
